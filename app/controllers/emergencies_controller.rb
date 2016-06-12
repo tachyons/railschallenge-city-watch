@@ -26,14 +26,10 @@ class EmergenciesController < ApplicationController
   def create
     @emergency = Emergency.new(emergency_params)
 
-    respond_to do |format|
-      if @emergency.save
-        format.html { redirect_to @emergency, notice: 'Emergency was successfully created.' }
-        format.json { render :show, status: :created, location: @emergency }
-      else
-        format.html { render :new }
-        format.json { render json: @emergency.errors, status: :unprocessable_entity }
-      end
+    if @emergency.save
+      render status: :created, json: @emergency
+    else
+      render json: { message: @emergency.errors }, status: :unprocessable_entity
     end
   end
 
@@ -62,13 +58,14 @@ class EmergenciesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_emergency
-      @emergency = Emergency.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def emergency_params
-      params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_emergency
+    @emergency = Emergency.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def emergency_params
+    params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity)
+  end
 end

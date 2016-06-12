@@ -1,6 +1,5 @@
 class Police < Responder
- def self.model_name
+  def self.model_name
     Responder.model_name
-  end
-
+   end
 end

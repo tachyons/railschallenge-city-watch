@@ -26,11 +26,11 @@ class RespondersController < ApplicationController
   def create
     @responder = Responder.new(responder_params)
 
-      if @responder.save
-         render status: :created, json: @responder
-      else
-        render json: {message: @responder.errors}, status: :unprocessable_entity 
-      end
+    if @responder.save
+      render status: :created, json: @responder
+    else
+      render json: { message: @responder.errors }, status: :unprocessable_entity
+    end
   end
 
   # PATCH/PUT /responders/1
@@ -58,13 +58,14 @@ class RespondersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_responder
-      @responder = Responder.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def responder_params
-      params.require(:responder).permit(:type, :name, :capacity)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_responder
+    @responder = Responder.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def responder_params
+    params.require(:responder).permit(:type, :name, :capacity)
+  end
 end

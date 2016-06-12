@@ -8,7 +8,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = false
 
   config.action_dispatch.show_exceptions = false
-:x
+  :x
   config.action_controller.allow_forgery_protection = false
 
   config.action_mailer.delivery_method = :test

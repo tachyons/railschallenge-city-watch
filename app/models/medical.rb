@@ -1,6 +1,5 @@
 class Medical < Fire
- def self.model_name
+  def self.model_name
     Responder.model_name
-  end
-
+   end
 end
