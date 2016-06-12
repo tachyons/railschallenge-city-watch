@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Code:</strong>
+  <%= @emergency.code %>
+</p>
+
+<p>
+  <strong>Fire severity:</strong>
+  <%= @emergency.fire_severity %>
+</p>
+
+<p>
+  <strong>Police severity:</strong>
+  <%= @emergency.police_severity %>
+</p>
+
+<p>
+  <strong>Medical severity:</strong>
+  <%= @emergency.medical_severity %>
+</p>
+
+<%= link_to 'Edit', edit_emergency_path(@emergency) %> |
+<%= link_to 'Back', emergencies_path %>
