@@ -5,11 +5,13 @@ class RespondersController < ApplicationController
   # GET /responders.json
   def index
     @responders = Responder.all
+    render json: @responders
   end
 
   # GET /responders/1
   # GET /responders/1.json
   def show
+    render json: { responder: @responder }
   end
 
   # GET /responders/new
@@ -61,7 +63,8 @@ class RespondersController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_responder
-    @responder = Responder.find(params[:id])
+    # @responder = Responder.find(params[:id])
+    @responder = Responder.where(name: params[:name]).first!
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

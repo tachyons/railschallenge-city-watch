@@ -1,4 +1,4 @@
 Rails.application.routes.draw do
-  resources :emergencies
-  resources :responders, except: [:new]
+  resources :emergencies, except: [:new], param: :code
+  resources :responders, except: [:new], param: :name
 end
