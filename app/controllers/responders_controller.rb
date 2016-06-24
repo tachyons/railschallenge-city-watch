@@ -5,13 +5,13 @@ class RespondersController < ApplicationController
   # GET /responders.json
   def index
     @responders = Responder.all
-    render json: @responders
+    render json: { responders: @responders }
   end
 
   # GET /responders/1
   # GET /responders/1.json
   def show
-    render json: { responder: @responder }
+    render json:  { responder: @responder }
   end
 
   # GET /responders/new
@@ -29,7 +29,7 @@ class RespondersController < ApplicationController
     @responder = Responder.new(responder_params)
 
     if @responder.save
-      render status: :created, json: @responder
+      render status: :created, json: { responder: @responder }
     else
       render json: { message: @responder.errors }, status: :unprocessable_entity
     end
@@ -38,14 +38,10 @@ class RespondersController < ApplicationController
   # PATCH/PUT /responders/1
   # PATCH/PUT /responders/1.json
   def update
-    respond_to do |format|
-      if @responder.update(responder_params)
-        format.html { redirect_to @responder, notice: 'Responder was successfully updated.' }
-        format.json { render :show, status: :ok, location: @responder }
-      else
-        format.html { render :edit }
-        format.json { render json: @responder.errors, status: :unprocessable_entity }
-      end
+    if @responder.update(responder_update_params)
+      render json: { responder: @responder }
+    else
+      render json: @responder.errors, status: :unprocessable_entity
     end
   end
 
@@ -70,5 +66,9 @@ class RespondersController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def responder_params
     params.require(:responder).permit(:type, :name, :capacity)
+  end
+
+  def responder_update_params
+    params.require(:responder).permit(:on_duty)
   end
 end
