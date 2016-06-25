@@ -1,4 +1,4 @@
-class Medical < Fire
+class Medical < Responder
   def self.model_name
     Responder.model_name
   end
