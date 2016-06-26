@@ -2,9 +2,14 @@ class Emergency < ActiveRecord::Base
   validates :fire_severity, :police_severity, :medical_severity, :code, presence: true
   validates :fire_severity, :police_severity, :medical_severity, numericality: { greater_than_or_equal_to: 0 }
   validates :code, uniqueness: true
+  has_many :responders
+  after_create :setup_responders
+  before_save :resolve, if: :resolved_at_changed?
+
+  scope :resolved, -> { where('resolved_at NOT NULL') }
 
   def as_json(*args)
-    super.merge(responders: responders, full_response: !full_response)
+    super.merge(responders: responders_name, full_response: !full_response)
   end
 
   def full_response
@@ -13,25 +18,37 @@ class Emergency < ActiveRecord::Base
       (medical_severity > Medical.on_duty.to_a.sum(&:capacity))
   end
 
-  def responders
-    list = []
+  def responders_name
+    responders.to_a.collect(&:name)
+  end
+
+  def resolve
+    responders.each do |responder|
+      responder.update_attributes(emergency: nil)
+    end
+  end
+
+  def setup_responders
     Responder.types.each do |responder|
       klass = responder.constantize
       severity = "#{responder.downcase}_severity"
+      responders_array = []
+      responders_list = []
       if self[severity] > klass.available_capacity
-        list += klass.on_duty.collect(&:name)
+        responders_array += klass.on_duty.to_a
       elsif self[severity] > 0
-        responders_list = []
         klass.on_duty.sort_by(&:capacity).reverse_each do |responder|
           if (responders_list + [responder]).sum(&:capacity) == self[severity]
             responders_list << responder
-            list += responders_list.collect(&:name)
+            responders_array += responders_list
           elsif responder.capacity < self[severity]
             responders_list << responder
           end
         end
       end
+      responders_array.each do |responder|
+        responder.update_attributes(emergency: self)
+      end
     end
-    list
   end
 end

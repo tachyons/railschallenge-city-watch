@@ -5,7 +5,11 @@ class RespondersController < ApplicationController
   # GET /responders.json
   def index
     @responders = Responder.all
-    render json: { responders: @responders }
+    if params[:show] == 'capacity'
+      render json: Responder.available_responders
+    else
+      render json: { responders: @responders }
+    end
   end
 
   # GET /responders/1
