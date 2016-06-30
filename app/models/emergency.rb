@@ -2,7 +2,7 @@ class Emergency < ActiveRecord::Base
   validates :fire_severity, :police_severity, :medical_severity, :code, presence: true
   validates :fire_severity, :police_severity, :medical_severity, numericality: { greater_than_or_equal_to: 0 }
   validates :code, uniqueness: true
-  has_many :responders
+  has_many :responders, dependent: :nullify
   after_create :setup_responders
   before_save :resolve, if: :resolved_at_changed?
 
@@ -34,15 +34,24 @@ class Emergency < ActiveRecord::Base
       severity = "#{responder.downcase}_severity"
       responders_array = []
       responders_list = []
-      if self[severity] > klass.available_capacity
+      # When capacity is not enough
+      if self[severity] >= klass.available_capacity
         responders_array += klass.on_duty.to_a
+      # Single responder is enough
+      elsif klass.on_duty.where(capacity: self[severity]).present?
+        responders_array = [klass.on_duty.find_by(capacity: self[severity])]
       elsif self[severity] > 0
-        klass.on_duty.sort_by(&:capacity).reverse_each do |responder|
-          if (responders_list + [responder]).sum(&:capacity) == self[severity]
-            responders_list << responder
-            responders_array += responders_list
-          elsif responder.capacity < self[severity]
-            responders_list << responder
+        list = klass.on_duty.sort_by(&:capacity).reverse
+        1.upto(list.length) do |num|
+          list.each_slice(num) do |slice|
+            responders_array += slice if slice.sum(&:capacity) == self[severity]
+          end
+        end
+        if responders_array.empty?
+          1.upto(list.length) do |num|
+            list.each_slice(num) do |slice|
+              responders_array += slice if slice.sum(&:capacity) >= self[severity]
+            end
           end
         end
       end
