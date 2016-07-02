@@ -5,8 +5,7 @@ class EmergenciesController < ApplicationController
   # GET /emergencies.json
   def index
     @emergencies = Emergency.all
-    # @emergencies.merge(full_responces: [1,3])
-    render json: { emergencies: @emergencies, full_responses: [1, 3] }
+    render json: { emergencies: @emergencies, full_responses: [Emergency.full_response.count, Emergency.count] }
   end
 
   # GET /emergencies/1

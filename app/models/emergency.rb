@@ -5,17 +5,20 @@ class Emergency < ActiveRecord::Base
   has_many :responders, dependent: :nullify
   after_create :setup_responders
   before_save :resolve, if: :resolved_at_changed?
+  before_save :set_full_response
 
   scope :resolved, -> { where('resolved_at NOT NULL') }
+  scope :full_response, -> { where(full_response: true) }
 
   def as_json(*args)
-    super.merge(responders: responders_name, full_response: !full_response)
+    super.merge(responders: responders_name, full_response: full_response)
   end
 
-  def full_response
-    (fire_severity > Fire.on_duty.to_a.sum(&:capacity)) &&
-      (police_severity > Police.on_duty.to_a.sum(&:capacity)) &&
-      (medical_severity > Medical.on_duty.to_a.sum(&:capacity))
+  def set_full_response
+    self.full_response = ! ((fire_severity > Fire.on_duty.to_a.sum(&:capacity)) ||
+    (police_severity > Police.on_duty.to_a.sum(&:capacity)) ||
+    (medical_severity > Medical.on_duty.to_a.sum(&:capacity)))
+    true
   end
 
   def responders_name
